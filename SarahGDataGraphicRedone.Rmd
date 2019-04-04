@@ -1,0 +1,65 @@
+---
+title: "SarahGDataGraphicRedone"
+author: "Sarah Gillespie"
+date: "4/3/2019"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###### My process:
+###### I took the invitation to recreate an data graphic from [an article redesigning past Economist graphs](https://medium.economist.com/mistakes-weve-drawn-a-few-8cdd8a42d368). This data graphic goes with a March 2017 article titled ["Science remains male-dominated"](https://www.economist.com/science-and-technology/2017/03/11/science-remains-male-dominated).
+
+###### I copied the data into Google Sheets, removed the top row, and relabeled the columns to not have spaces and to be more accurate to their data. Then I downloaded the file as a CSV and uploaded it into Rstudio.
+
+###### The article focuses on the overall publication and patent proportion by country (rather than in-depth analysis by field on the orginal graphic), so I thought my ggplot graphic should have a similar focus. I found the average of percent of publications by women across all fields, weighing each field equally. This might not be ideal statistics but it was the best I could do with the limited data. I kept the inventor proportion the same because filing a patent has a different process and requirements than publishing a reseach paper in academia.
+
+###### I created a data frame using dyplr functions and reshape2's melt, then made a grouped bar plot using ggplot2 and ggthemes.
+
+###### One problem with this data graphic is the order of the countries. I wish they were in descending order starting with the country with the highest proportion of women producing STEM reseach papers, but instead it is in reverse alphabetical order by country.
+
+```{r EData, echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(ggrepel)
+library(reshape2)
+
+EconomistWomenResearch <- read_csv("EconomistWomenResearch.csv")
+
+EconomistWomenResearch2 <- EconomistWomenResearch %>%
+  mutate(STEM_Papers = ((Health_sciences + Physical_sciences + Engineering + Computer_science_math)/4)) %>%
+  select(Country, WomenInventors, STEM_Papers)
+
+EconomistWomenResearch2$WomenInventors <- EconomistWomenResearch2$WomenInventors * 100
+
+EconomistWomenResearch2$STEM_Papers <- EconomistWomenResearch2$STEM_Papers * 100
+
+#using melt from reshape2
+meltedEWR2 <- melt(data = EconomistWomenResearch2, id.vars = "Country", measure.vars = c("WomenInventors", "STEM_Papers"))
+```
+
+```{r EPlot, echo=FALSE}
+# plot my data
+ggplot(meltedEWR2, aes(y=value, x=Country)) + 
+  geom_bar(aes(fill = variable), width = 0.6, position = position_dodge(width=0.6), stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Papers and Patents Published by Women") +
+  labs(y="Percent published by women") + 
+  theme_economist() +
+  coord_flip() +
+  scale_fill_manual(values=c("#00CC00", "#0000FF"))
+
+```
+
+###### Notes on data:
+###### Papers published	Indexed in Scopus			
+###### Inventors	Who filed patent applications			
+				
+###### Sources: "Gender in the Global Research Landscape" by Elsevier; The Economist				
+
+^[[Github Repository](https://github.com/SarahGillespie/EconomistGraphicRedone)]
