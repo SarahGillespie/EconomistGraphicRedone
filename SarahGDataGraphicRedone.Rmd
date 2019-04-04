@@ -34,14 +34,15 @@ EconomistWomenResearch <- read_csv("EconomistWomenResearch.csv")
 
 EconomistWomenResearch2 <- EconomistWomenResearch %>%
   mutate(STEM_Papers = ((Health_sciences + Physical_sciences + Engineering + Computer_science_math)/4)) %>%
-  select(Country, WomenInventors, STEM_Papers)
+  mutate(Inventors = WomenInventors) %>%
+  select(Country, Inventors, STEM_Papers)
 
-EconomistWomenResearch2$WomenInventors <- EconomistWomenResearch2$WomenInventors * 100
+EconomistWomenResearch2$Inventors <- EconomistWomenResearch2$Inventors * 100
 
 EconomistWomenResearch2$STEM_Papers <- EconomistWomenResearch2$STEM_Papers * 100
 
 #using melt from reshape2
-meltedEWR2 <- melt(data = EconomistWomenResearch2, id.vars = "Country", measure.vars = c("WomenInventors", "STEM_Papers"))
+meltedEWR2 <- melt(data = EconomistWomenResearch2, id.vars = "Country", measure.vars = c("Inventors", "STEM_Papers"))
 ```
 
 ```{r EPlot, echo=FALSE}
@@ -49,7 +50,8 @@ meltedEWR2 <- melt(data = EconomistWomenResearch2, id.vars = "Country", measure.
 ggplot(meltedEWR2, aes(y=value, x=Country)) + 
   geom_bar(aes(fill = variable), width = 0.6, position = position_dodge(width=0.6), stat="identity") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Papers and Patents Published by Women") +
-  labs(y="Percent published by women") + 
+  labs(y="Percent published by women") +
+  labs(x=" ") +
   theme_economist() +
   coord_flip() +
   scale_fill_manual(values=c("#00CC00", "#0000FF"))
@@ -57,9 +59,9 @@ ggplot(meltedEWR2, aes(y=value, x=Country)) +
 ```
 
 ###### Notes on data:
-###### Papers published	Indexed in Scopus			
+###### Papers published	Indexed in Scopus
 ###### Inventors	Who filed patent applications			
 				
-###### Sources: "Gender in the Global Research Landscape" by Elsevier; The Economist				
+###### Sources: "Gender in the Global Research Landscape" by Elsevier; *The Economist*				
 
 ^[[Github Repository](https://github.com/SarahGillespie/EconomistGraphicRedone)]
